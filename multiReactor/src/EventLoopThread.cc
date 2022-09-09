@@ -21,24 +21,29 @@ EventLoopThread::~EventLoopThread(){
 }
 
 EventLoop* EventLoopThread::startLoop(){
-    _thread.start();
+    _thread.start();        //在这里才真正地创建了一个线程，在线程里执行下面的threadFunc()函数
     
     EventLoop* loop = nullptr;
     {
         unique_lock<mutex> lock(_mutex);
         while(_loop == nullptr){
-            _cond.wait(lock);
+            _cond.wait(lock);       //one loop per thread 的EventLoop对象是在线程中创建的，在这里需要等待线程创建好EventLoop对象，然后条件变量发出通知
         }
         loop = _loop;
     }
     return loop;
 }
 
-void EventLoopThread::threadFunc(){
-    EventLoop loop;
+
+/**
+ * @brief 该函数是在线程中执行的
+ * 线程主要就是循环执行loop()，其实也就是循环epoll_wait()
+ */
+void EventLoopThread::threadFunc(){   
+    EventLoop loop;     //在线程栈中产生一个EventLoop对象
     {
         unique_lock<mutex> lock(_mutex);
-        _loop = &loop;
+        _loop = &loop;      //将产生的EventLoop对象交给主线程
         _cond.notify_one();
     }
 

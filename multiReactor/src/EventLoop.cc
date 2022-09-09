@@ -60,12 +60,13 @@ void EventLoop::loop(){
     LOG("\t\t\t开始loop,loop地址:%p",this);
     while(!_quit){
         _activeChannels.clear();
-        _pollReturnTime = _poller->poll(-1, &_activeChannels);           //超时时间设置为-1，一直阻塞
+
+        _pollReturnTime = _poller->poll(-1, &_activeChannels);           //循环进行epoll_wait()监听，超时时间设置为-1，一直阻塞
         LOG("\tepoll:%p超时/有事件产生",this);
-        for(Channel *channel : _activeChannels){
+        for(Channel *channel : _activeChannels){        //处理各个文件描述符中的读写事件
             channel->handleEvent(_pollReturnTime);
         }
-        doPendingFunctors();
+        doPendingFunctors();            //如果任务队列中有函数的话，就执行任务函数
     }
 
     //LOGINFO("EventLoop %p stop looping", this);
@@ -128,7 +129,8 @@ void EventLoop::doPendingFunctors(){
     vector<Functor> functors;
     _callingPendingFunctors = true;
 
-    {
+    {//加锁的目的：子线程执行自己的任务队列，此时其他线程可能还会往自己的任务队列中放入任务函数
+    //比如主线程可能还会添加任务函数，所以此时需要互斥访问，采用交换指针的操作，减少加锁的颗粒度
         unique_lock<mutex> lock(_mutex);
         functors.swap(_pendingFunctors);
     }
