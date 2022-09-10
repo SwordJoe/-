@@ -57,12 +57,12 @@ void EventLoop::loop(){
     _looping = true;
     _quit = false;
     //LOGINFO("EventLoop %p start looping", this);
-    LOG("\t\t\t开始loop,loop地址:%p",this);
+    //LOG("\t\t\t开始loop,loop地址:%p",this);
     while(!_quit){
         _activeChannels.clear();
 
         _pollReturnTime = _poller->poll(-1, &_activeChannels);           //循环进行epoll_wait()监听，超时时间设置为-1，一直阻塞
-        LOG("\tepoll:%p超时/有事件产生",this);
+        //LOG("\tepoll:%p超时/有事件产生",this);
         for(Channel *channel : _activeChannels){        //处理各个文件描述符中的读写事件
             channel->handleEvent(_pollReturnTime);
         }

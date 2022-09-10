@@ -65,6 +65,6 @@ private:
     MessageCallback _messageCallback;           //消息到达回调
     CloseCallback _closeCallback;               //连接关闭回调
 
-    Buffer _inputBuffer;        //接受数据的缓冲区
+    Buffer _inputBuffer;        //接收数据的缓冲区
     Buffer _outputBuffer;       //发送数据的缓冲区
 };

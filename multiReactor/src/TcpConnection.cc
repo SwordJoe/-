@@ -56,7 +56,8 @@ void TcpConnection::sendInLoop(const void *data, size_t len){
         return;
     }   
 
-    //只有当fd注册了写事件，并且发送缓冲区可读字节数为0时，才直接调用原生的::write()发送
+    //只有当fd目前还未注册写事件，并且发送缓冲区可读字节数为0时，才直接调用原生的::write()发送
+    //1.fd目前不能关注写事件，如果目前有写事件的话，就需要将这些数据
     //因为发送缓冲区的可读字节数!=0，代表上次的数据还没完全发送完毕，所以本次数据应该追加到发送缓冲区的末尾
     if(!_channel->isWriting() && _outputBuffer.readableBytes() == 0){
         nwrote = ::write(_channel->fd(), data, len);            //先调用原生的write函数直接写入TCP内核发送缓冲区
@@ -141,7 +142,7 @@ void TcpConnection::handleWrite(){
         if(n > 0){
             _outputBuffer.retrieve(n);      //将readable区域的数据读走并发送出去之后，取回这部分空间，也就是将_readIndex 往后移
             if(_outputBuffer.readableBytes() == 0){     
-                _channel->disableWrite();   //如果发送缓冲区中的数据都被发送出去了，就让该fd不再关注可读事件
+                _channel->disableWrite();   //发送缓冲区中的数据都被发送出去了，就让该fd不再关注可读事件
                 if(_state == kDisConnecting){
                     shutdownInLoop();
                 }

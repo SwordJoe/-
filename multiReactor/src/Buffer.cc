@@ -8,10 +8,10 @@ size_t Buffer::readFd(int fd, int* saveErrno){
     struct iovec vec[32];
 
     size_t writable = writeableBytes();
-    vec[0].iov_base = begin() + _writeIndex;
+    vec[0].iov_base = begin() + _writeIndex;    //第一次读到_buffer中
     vec[0].iov_len = writable;
 
-    vec[1].iov_base = extraBuf;
+    vec[1].iov_base = extraBuf;             //剩余部分读取到extraBuf中
     vec[1].iov_len = sizeof(extraBuf);
 
     const int iovcnt = (writable < sizeof(extraBuf) ? 2 : 1);
@@ -24,7 +24,7 @@ size_t Buffer::readFd(int fd, int* saveErrno){
     }
     else{       //如果从客户端读取到的字节数比可写入数据区域字节数要大，将extraBuf追加到buffer缓冲区后面，需要对缓冲区扩容
         _writeIndex = _buffer.size();      
-        append(extraBuf, n - writable);
+        append(extraBuf, n - writable);         //将extraBuf中n-writable个字节拷贝到_buffer中
     }
     return n;
 }
@@ -32,7 +32,7 @@ size_t Buffer::readFd(int fd, int* saveErrno){
 
 
 size_t Buffer::writeFd(int fd, int* saveErrno){
-    size_t n = ::write(fd, peek(), readableBytes() );
+    size_t n = ::write(fd, peek(), readableBytes() );       //将outputBuffer中的数据有多少发多少出去，尽量都发送完毕
     if(n < 0){
         *saveErrno = errno;
     }

@@ -47,7 +47,7 @@ int main()
 {
     EventLoop loop;
     LOG("\t\t\t\tmainLoop地址：%p",&loop);
-    InetAddress addr(8888);
+    InetAddress addr(8888,"172.24.40.165");
     EchoServer server(&loop, addr);
     server.start();
     //loop.loop();

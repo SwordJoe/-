@@ -20,8 +20,9 @@ EventLoopThread::~EventLoopThread(){
     }
 }
 
+//startLoop函数所有步骤都是在主线程中执行的
 EventLoop* EventLoopThread::startLoop(){
-    _thread.start();        //在这里才真正地创建了一个线程，在线程里执行下面的threadFunc()函数
+    _thread.start();        //在start()函数里才真正地创建了一个线程，在线程里执行下面的threadFunc()函数
     
     EventLoop* loop = nullptr;
     {
@@ -36,7 +37,7 @@ EventLoop* EventLoopThread::startLoop(){
 
 
 /**
- * @brief 该函数是在线程中执行的
+ * @brief 该函数是在子线程中执行的
  * 线程主要就是循环执行loop()，其实也就是循环epoll_wait()
  */
 void EventLoopThread::threadFunc(){   
