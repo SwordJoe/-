@@ -84,7 +84,7 @@ void LogAsyncFileAppender::threadFunc(){
             }
 
             _buffers.push_back(std::move(_curBuffer));      //将_curBuffer转移到_buffers中
-            buffersToDump.swap(_buffers);                   //交换前后端的buffer池水
+            buffersToDump.swap(_buffers);                   //交换前后端的buffer池
             _curBuffer = std::move(newBuffer);              //将后端的buffer转移给前端的_curBuffer,以供写日志
             _curBuffer->clear();
 

@@ -2,6 +2,10 @@
 #include<errno.h>
 #include<sys/uio.h>
 #include<unistd.h>
+#include<sys/types.h>
+#include<sys/socket.h>
+#include<iostream>
+using namespace std;
 
 size_t Buffer::readFd(int fd, int* saveErrno){
     char extraBuf[65536] = {0};     //64K
@@ -28,6 +32,18 @@ size_t Buffer::readFd(int fd, int* saveErrno){
     }
     return n;
 }
+
+// size_t Buffer::readFd(int fd, int *saveErrno){
+//     size_t writeable = writeableBytes();                    //当前缓冲区可写字节数
+//     size_t n = ::recv(fd, beginWrite(), INT64_MAX, MSG_PEEK);    //先窥探TCP缓冲区中的数据长度
+//     if(n>writeable){        //如果TCP缓冲区的数据长度大于可写数据长度,扩容
+//         makeSpace(n);
+//     }
+//     n = ::recv(fd, beginWrite(), n,0);             //进行真正的读数据
+//     _writeIndex += n;                                       //可写标志位后移
+//     cout<<"读取"<<n<<"字节"<<endl;
+//     return n;
+// }
 
 
 

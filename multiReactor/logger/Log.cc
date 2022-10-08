@@ -33,7 +33,7 @@ void Logger::writeLog(LogLevel logLevel, const char *fileName,
     if(logMsg.empty()){
         return;
     }
-    //lambda表达式，获取日志文件名，去除前面所有的目录层级
+    //lambada表达式，获取产生日志的那个.cc文件名
     const auto &getSourceFileName = [](const char *fileName){       
         return strrchr(fileName, '/') ? strrchr(fileName, '/') + 1 : fileName;
     };
@@ -45,7 +45,7 @@ void Logger::writeLog(LogLevel logLevel, const char *fileName,
                 getSourceFileName(fileName),
                 functionName,
                 lineNo);
-
+    //完整日志消息 = 日志前缀 + 日志消息 + "\n"
     logMsg = string(prefix) + logMsg + "\n";        //一条完整的日志信息
     _logAsyncAppender->append(logMsg.data(), logMsg.size());        
 }

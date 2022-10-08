@@ -1,5 +1,6 @@
 #include"../inc/TcpServer.h"
 #include"../inc/LOGGER.h"
+#include"../../Proto/student.pb.h"
 #include<string>
 #include<functional>
 #include<iostream>
@@ -28,7 +29,16 @@ private:
 
     void onMessage(const TcpConnectionPtr &conn, Buffer *buff, TimeStamp time){
         string msg = buff->retrieveAllAsString();
-        
+
+        Student stu;
+        stu.ParseFromString(msg);
+        cout<<stu.DebugString()<<endl;
+
+        stu.set_id(100);
+        stu.set_name("swordjoe");
+        stu.set_math(99);
+        msg = stu.SerializeAsString();
+
         //对客户端数据进行一些处理......
         //再发送给客户端
         conn->send(msg);

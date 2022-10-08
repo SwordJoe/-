@@ -30,7 +30,6 @@ struct LogConfig{
     uint32_t logBufferSize;                   //日志buffer大小
     uint32_t logBufferNums;                  //日志buffer数量
     LogLevel logLevel;                        //日志级别
-
     string logPath;                         //日志存放的目录
     uint32_t logRollFileSize;               //滚动日志需要达到的文件大小
     uint32_t logFlushInterval;              //刷盘的时间间隔

@@ -85,12 +85,6 @@ public:
     size_t readFd(int fd, int *saveErrno);
     size_t writeFd(int fd, int *saveErrno);
 
-private:
-    char *begin()
-    {
-        return &*_buffer.begin();
-    }
-
     void makeSpace(size_t len)
     {
         if (writeableBytes() + prependableBytes() < len + kCheapPrepend)
@@ -105,6 +99,13 @@ private:
             _writeIndex = _readIndex + readable;
         }
     }
+    
+private:
+    char *begin()
+    {
+        return &*_buffer.begin();
+    }
+
 
 private:
     vector<char> _buffer;

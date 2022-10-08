@@ -88,27 +88,27 @@ LogFile::LogFile(const string &logPath, int32_t rollSize, int32_t flushInterval,
 }
 
 
-//将内存中的msg写入文件中
+//将内存中的logMsg写入文件中
 void LogFile::writeToFile(const char *msg, int32_t len){
     _fileWriter->append(msg,len);
     //如果写入日志文件的字节数大于规定的日志文件滚动字节数，滚动日志
     if(_fileWriter->writtenBytes() > _rollSize){  
         rollFile();
-        cout<<"当前日志文件容量超过阈值，滚动一次"<<endl;
-        cout<<"日志大小："<<_fileWriter->writtenBytes()/1024/1024<<"M"<<endl<<endl<<endl;
-
+        //cout<<"当前日志文件容量超过阈值，滚动一次"<<endl;
+        //cout<<"日志大小："<<_fileWriter->writtenBytes()/1024/1024<<"M"<<endl<<endl<<endl;
     }
     else{
         ++_logCnt;   //写入日志的条数+1
-        cout<<"已经写入"<<_logCnt<<"条日志"<<endl;
+        //cout<<"已经写入"<<_logCnt<<"条日志"<<endl;
+        //_checkCnt 是1024
         if(_logCnt > _checkCnt){
-            cout<<"写入日志条数达到检查阈值，检查一下是否需要滚动日志"<<endl<<endl;
+            //cout<<"写入日志条数达到检查阈值，检查一下是否需要滚动日志"<<endl<<endl;
             _logCnt=0;
             time_t now = time(nullptr);
             time_t thisPeriod = now / kRollPerSeconds * kRollPerSeconds;
             if(thisPeriod != _startOfPeriod){       //跨24小时了
                 rollFile();
-                cout<<"跨24小时了"<<endl<<endl;
+                //cout<<"跨24小时了"<<endl<<endl;
             }
             else if(now - _lastFlush > _flushInterval){
                 _lastFlush = now;
