@@ -42,7 +42,7 @@ EventLoop::EventLoop()
 
     //设置wakeupfd的感兴趣事件类型及发生事件后的回调操作
     _wakeupChannel->setReadCallback(bind(&EventLoop::handleRead, this));
-    //设置监听读事件
+    //将负责监听的eventfd添加到epoll监听队列中
     _wakeupChannel->enableRead();
 }
 

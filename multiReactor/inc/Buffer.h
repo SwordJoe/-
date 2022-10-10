@@ -2,6 +2,8 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <arpa/inet.h>
+#include <cstring>
 using namespace std;
 
 class Buffer
@@ -94,9 +96,23 @@ public:
         else
         {
             size_t readable = readableBytes();
-            copy(begin() + _readIndex, begin() + _writeIndex, begin() + kCheapPrepend);
+
+            copy(begin() + _readIndex,  begin()+ _writeIndex, begin() + kCheapPrepend);
             _readIndex = kCheapPrepend;
             _writeIndex = _readIndex + readable;
+        }
+    }
+
+    int peekInt32(){
+        int32_t len = 0;
+        ::memcpy(&len, peek(), sizeof(len));
+
+        //int32_t len = ntohl(int32);
+        if(readableBytes() - sizeof(len) < len){
+            return -1;
+        }
+        else{
+            return 4+len;
         }
     }
     

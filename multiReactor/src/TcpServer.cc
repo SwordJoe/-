@@ -64,7 +64,7 @@ void TcpServer::newConnection(int sockfd, InetAddress &peerAddr){
     conn->setMessageCallback(_messageCallback);
     conn->setCloseCallback(bind(&TcpServer::removeConnection, this, _1));
 
-    //这一步很关键，之前忘了设置，新建一个TcpConnection对象之后，需要将该tcp fd注册到对应EventLoop的epoll中(注册的关键操作是在Channel的enableRead()函数中)
+    //这一步很关键，之前忘了设置，新建一个TcpConnection对象之后，需要将该TCP连接的fd注册到对应EventLoop的epoll中(注册的关键操作是在Channel的enableRead()函数中)
     //运行到这里还是在主线程中，而注册到subLoop的epoll中这些操作应该交由subLoop子线程来做，这里涉及到线程间的通信(唤醒)
     ioLoop->runInLoop(bind(&TcpConnection::connectionEstablished,conn));
 }

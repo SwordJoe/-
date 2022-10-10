@@ -37,8 +37,8 @@ public:
     TimeStamp pollReturnTime() const { return _pollReturnTime;}
 
 private:
-    void handleRead();      //用于唤醒
-    void doPendingFunctors();        //执行回调
+    void handleRead();              //用于唤醒，注册给_wakeupChannel的读事件回调函数
+    void doPendingFunctors();      //执行任务队列中的任务函数
 
 private:
     atomic_bool _looping;

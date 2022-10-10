@@ -32,7 +32,7 @@ void Channel::removeFromEventLoop(){
     _loop->removeChannel(this);
 }
 
-//fd上有事件发生后，调用改函数处理事件
+//fd上有事件发生后，调用该函数处理事件
 void Channel::handleEvent(TimeStamp recvTime){
     if(_tied){
         shared_ptr<void> guard=_tie.lock();

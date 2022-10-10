@@ -59,6 +59,8 @@ void TcpConnection::sendInLoop(const void *data, size_t len){
     //只有当fd目前还未注册写事件，并且发送缓冲区可读字节数为0时，才直接调用原生的::write()发送
     //1.fd目前不能关注写事件，如果目前有写事件的话，就需要将这些数据
     //因为发送缓冲区的可读字节数!=0，代表上次的数据还没完全发送完毕，所以本次数据应该追加到发送缓冲区的末尾
+
+    //当前fd未注册写时间，且发送缓冲区可读数据为0，直接调用原生::write()系统调用发送
     if(!_channel->isWriting() && _outputBuffer.readableBytes() == 0){
         nwrote = ::write(_channel->fd(), data, len);            //先调用原生的write函数直接写入TCP内核发送缓冲区
         if(nwrote >= 0){
@@ -75,8 +77,9 @@ void TcpConnection::sendInLoop(const void *data, size_t len){
         }
     }
 
-    //如果要发送的数据过多，比如发送一份大文件给客户端，剩余字节没有写入立即写入TCP内核发送缓冲区
-    //就将剩余数据加入outpufBuffer，设置fd的写事件，等待epoll返回
+    //如果能进入下面的if语句，有以下几种情况：
+    //1.fd的写事件仍然存在，即epoll仍然在监听fd的写事件。此时不能调用::write()直接发送，需要将全部数据append到_outputBffer末尾，继续监听写事件
+    //2.fd的写事件不存在，但是调用原生::write()发送数据，并没有将全部数据发送到内核缓冲区，仍有剩余。此时也需要将剩余数据append到末尾，继续监听写事件
     if(faultError == false && remaining > 0){           
         _outputBuffer.append((char*)data+nwrote, remaining);
         if(!_channel->isWriting()){
@@ -140,7 +143,7 @@ void TcpConnection::handleWrite(){
         int saveErrno = 0;
         size_t n = _outputBuffer.writeFd(_channel->fd(), &saveErrno);
         if(n > 0){
-            _outputBuffer.retrieve(n);      //将readable区域的数据读走并发送出去之后，取回这部分空间，也就是将_readIndex 往后移
+            _outputBuffer.retrieve(n);      //将readable区域的数据读走并发送出去之后，收缩这部分空间，也就是将_readIndex 往后移
             if(_outputBuffer.readableBytes() == 0){     
                 _channel->disableWrite();   //发送缓冲区中的数据都被发送出去了，就让该fd不再关注可读事件
                 if(_state == kDisConnecting){

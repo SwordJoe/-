@@ -28,21 +28,27 @@ private:
     }
 
     void onMessage(const TcpConnectionPtr &conn, Buffer *buff, TimeStamp time){
-        string msg = buff->retrieveAllAsString();
+        int len = buff->peekInt32();    //先窥探一下数据长度
+        if(-1 == len){
+            return;
+        }
+        string msg = buff->retrieveAsString(len);
+        conn->send(msg.substr(4));
+        // string msg = buff->retrieveAllAsString();
 
-        Student stu;
-        stu.ParseFromString(msg);
-        cout<<stu.DebugString()<<endl;
+        // Student stu;
+        // stu.ParseFromString(msg);
+        // cout<<stu.DebugString()<<endl;
 
-        stu.set_id(100);
-        stu.set_name("swordjoe");
-        stu.set_math(99);
-        msg = stu.SerializeAsString();
+        // stu.set_id(100);
+        // stu.set_name("swordjoe");
+        // stu.set_math(99);
+        // msg = stu.SerializeAsString();
 
-        //对客户端数据进行一些处理......
-        //再发送给客户端
-        conn->send(msg);
-        //conn->shutdown();
+        // //对客户端数据进行一些处理......
+        // //再发送给客户端
+        // conn->send(msg);
+        // //conn->shutdown();
     }
 
 private:
