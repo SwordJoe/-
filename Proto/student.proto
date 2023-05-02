@@ -1,8 +1,0 @@
-syntax="proto3";
-message Student{
-    int32 id=1;
-    string name=2;
-    int32 chinese=3;
-    int32 math=4;
-    int32 english=5; 
-}
