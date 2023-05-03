@@ -6,7 +6,7 @@
 #include<sys/eventfd.h>
 #include<stdio.h>
 #include<errno.h>
-
+#include<iostream>
 //__thread EventLoop* _loopInThisThread = nullptr;
 
 EventLoop::EventLoop()
@@ -16,6 +16,7 @@ EventLoop::EventLoop()
 ,_wakeupChannel(new Channel(_eventfd, this))
 ,_epfd(epoll_create1(EPOLL_CLOEXEC))
 ,_events(16)
+,_timerQueue(new TimerQueue(this))
 {
     _wakeupChannel->setReadCallback(std::bind(&EventLoop::handleEventfdRead,this));
     
@@ -143,4 +144,30 @@ void EventLoop::executePendingFunctors()
     _pendingFunctors.clear();
 }
 
+
+// Timer* EventLoop::runAt(TimeStamp timestamp, TimerCallback cb)
+// {
+//     //Timer* TimerQueue::addTimer(TimeStamp timeStamp, TimerCallback cb, double interval)
+//     return _timerQueue->addTimer(timestamp, cb, 0);
+// }
+
+Timer* EventLoop::runAfter(double delay, TimerCallback cb)
+{
+    TimeStamp timestamp(TimeStamp::now());
+    timestamp.addTime(delay);
+    return _timerQueue->addTimer(timestamp, cb, 0);
+}
+
+
+Timer* EventLoop::runEvery(double interval, TimerCallback cb)
+{
+    TimeStamp timestamp(TimeStamp::now());
+    timestamp.addTime(interval);
+    return _timerQueue->addTimer(timestamp, cb, interval);
+}
+
+void EventLoop::cancelTimer(Timer* timer)
+{
+    _timerQueue->cancelTimer(timer);
+}
 
